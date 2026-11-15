@@ -1,0 +1,59 @@
+diff --git a/source/simple-init/src/gui/interface/core/bootmenu_hercules.inc b/source/simple-init/src/gui/interface/core/bootmenu_hercules.inc
+index bf0a951..d7e7639 100644
+--- a/source/simple-init/src/gui/interface/core/bootmenu_hercules.inc
++++ b/source/simple-init/src/gui/interface/core/bootmenu_hercules.inc
+@@ -201,13 +201,14 @@ static lv_obj_t *hercules_flex_group(lv_obj_t *parent,int gap) {
+ }
+ 
+ static void hercules_footer(lv_obj_t *root,struct hercules_menu *main) {
+-    lv_obj_t *row=hercules_flex_group(root,32);
++    lv_obj_t *row=hercules_flex_group(root,12);
+     lv_obj_align(row,LV_ALIGN_TOP_MID,0,hercules_y(1758));
+-    lv_obj_t *left=hercules_flex_group(row,10),*right=hercules_flex_group(row,7);
+-    hercules_logo(left,"hercules-xiaohongshu.svg",0,0,89,40);
+-    lv_obj_t *name=lv_label_create(left);lv_label_set_text(name,"十七号旅客");lv_obj_set_style_text_font(name,hercules_font(main,H_FOOT),0);lv_obj_set_style_text_color(name,lv_color_hex(0x747b89),0);lv_obj_clear_flag(name,LV_OBJ_FLAG_CLICKABLE);
+-    lv_obj_t *dot=lv_obj_create(right);lv_obj_remove_style_all(dot);lv_obj_set_size(dot,hercules_x(10),hercules_x(10));lv_obj_set_style_radius(dot,LV_RADIUS_CIRCLE,0);lv_obj_set_style_bg_color(dot,lv_color_hex(0x2dba57),0);lv_obj_set_style_bg_opa(dot,LV_OPA_COVER,0);lv_obj_clear_flag(dot,LV_OBJ_FLAG_CLICKABLE|LV_OBJ_FLAG_SCROLLABLE);
+-    lv_obj_t *coolapk=lv_label_create(right);lv_label_set_text(coolapk,"酷安 @BH8GQV");lv_obj_set_style_text_font(coolapk,hercules_font(main,H_FOOT),0);lv_obj_set_style_text_color(coolapk,lv_color_hex(0x747b89),0);lv_obj_clear_flag(coolapk,LV_OBJ_FLAG_CLICKABLE);
++    hercules_logo(row,"hercules-kuaishou.svg",0,0,40,40);
++    lv_obj_t *name=lv_label_create(row);
++    lv_label_set_text(name,"冬小拱");
++    lv_obj_set_style_text_font(name,hercules_font(main,H_FOOT),0);
++    lv_obj_set_style_text_color(name,lv_color_hex(0x747b89),0);
++    lv_obj_clear_flag(name,LV_OBJ_FLAG_CLICKABLE);
+ }
+ 
+ static void hercules_advanced_back(void *data) {
+diff --git a/source/simple-init/src/main/uefimain.c b/source/simple-init/src/main/uefimain.c
+index 6997252..11d399d 100644
+--- a/source/simple-init/src/main/uefimain.c
++++ b/source/simple-init/src/main/uefimain.c
+@@ -57,6 +57,29 @@ static int post_main(){
+ 
+ 	gui_splash_set_text(true,_("Initializing Boot Manager..."));
+ 	boot_init_configs();
++	/* Hercules: reload the config once the volumes are mounted, so the
++	 * static config on a mount can enable the boot menu skin. */
++	gui_splash_set_text(true,_("Reloading config store..."));
++	confd_init();
++	confd_dump(LEVEL_VERBOSE);
++
++	/* HERCULES_INJECTED: the public firmware has no config volume; seed the
++	 * dual-boot menu and its two EFI targets in the config store directly. */
++	confd_set_boolean("boot.hercules_skin",true);
++	confd_set_string("boot.title","Android / iOS");
++	confd_set_integer("boot.timeout",10);
++	confd_set_string("boot.default","android");
++	confd_set_string("boot.configs.android.desc","Android (MIUI)");
++	confd_set_string("boot.configs.android.mode","efi");
++	confd_set_boolean("boot.configs.android.show",true);
++	confd_set_boolean("boot.configs.android.enabled",true);
++	confd_set_string("boot.configs.android.efi_fv_guid","801a189c-e4a4-4195-85c2-64c5450a15ee");
++	confd_set_string("boot.configs.ios.desc","iOS 16.5");
++	confd_set_string("boot.configs.ios.mode","efi");
++	confd_set_boolean("boot.configs.ios.show",true);
++	confd_set_boolean("boot.configs.ios.enabled",true);
++	confd_set_string("boot.configs.ios.efi_fv_guid","d82f808b-ecca-4bb8-8e9f-9b9bafc490f5");
++	tlog_notice("hercules: dual-boot menu seeded");
+ 
+ 	#ifdef ENABLE_LUA
+ 	gui_splash_set_text(true,_("Initializing LUA Framework..."));

@@ -1,0 +1,38 @@
+# —— 绝不能提交的东西 ——
+# Apple / 小米 专有材料与派生产物
+*.ipsw
+*.img
+*.bin
+*.fd
+*.apfs
+*.ffs
+*.efi
+*.macho
+*.dylib
+*.ipa
+*.dmg
+
+# 字体（版权）
+*.ttf
+*.ttc
+*.otf
+*.raw
+
+# 设备备份与个人数据
+boot-original.img
+recovery-original.img
+backup/
+local/
+*.log
+*.txt
+
+# 构建输出
+build/
+out/
+work/
+
+# 编辑器
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
